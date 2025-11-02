@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cat GIF Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .gif-container {
+            background: #f5f5f5;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            min-height: 300px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #catGif {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            display: none;
+        }
+
+        #catGif.show {
+            display: block;
+        }
+
+        .placeholder {
+            color: #999;
+            font-size: 1.2em;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-weight: bold;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            color: #667eea;
+            font-size: 1.1em;
+            margin-top: 10px;
+        }
+
+        .error {
+            color: #e74c3c;
+            margin-top: 10px;
+        }
+
+        .cat-emoji {
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="cat-emoji">🐱</div>
+        <h1>Cat GIF Generator</h1>
+        <p class="subtitle">Click the button for a random cat GIF!</p>
+
+        <div class="gif-container">
+            <p class="placeholder" id="placeholder">Click below to generate a cat GIF</p>
+            <img id="catGif" alt="Random Cat GIF">
+        </div>
+
+        <button id="generateBtn">Generate Cat GIF</button>
+        <p class="loading" id="loading" style="display: none;">Loading adorable cats...</p>
+        <p class="error" id="error" style="display: none;"></p>
+    </div>
+
+    <script>
+        const generateBtn = document.getElementById('generateBtn');
+        const catGif = document.getElementById('catGif');
+        const placeholder = document.getElementById('placeholder');
+        const loading = document.getElementById('loading');
+        const error = document.getElementById('error');
+
+        // Using Giphy API - this is a public demo key, for production use your own
+        const GIPHY_API_KEY = 'sXpGFDGZs0Dv1mmNFvYaGUvYwKX0PWIh';
+        const GIPHY_API_URL = 'https://api.giphy.com/v1/gifs/random';
+
+        async function fetchCatGif() {
+            try {
+                // Hide error and show loading
+                error.style.display = 'none';
+                loading.style.display = 'block';
+                generateBtn.disabled = true;
+
+                // Fetch random cat gif from Giphy
+                const response = await fetch(
+                    `${GIPHY_API_URL}?api_key=${GIPHY_API_KEY}&tag=cat&rating=g`
+                );
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch cat GIF');
+                }
+
+                const data = await response.json();
+                const gifUrl = data.data.images.original.url;
+
+                // Hide placeholder and show gif
+                placeholder.style.display = 'none';
+                catGif.src = gifUrl;
+                catGif.classList.add('show');
+
+            } catch (err) {
+                console.error('Error fetching cat GIF:', err);
+                error.textContent = 'Oops! Failed to load cat GIF. Please try again.';
+                error.style.display = 'block';
+            } finally {
+                loading.style.display = 'none';
+                generateBtn.disabled = false;
+            }
+        }
+
+        // Event listener for button
+        generateBtn.addEventListener('click', fetchCatGif);
+
+        // Optional: Load a cat GIF on page load
+        // fetchCatGif();
+    </script>
+</body>
+</html>
