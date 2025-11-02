@@ -160,45 +160,349 @@
         .container.rebuilding {
             animation: rebuild 1s ease-out;
         }
+
+        /* Game Stats */
+        .stats-container {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 15px;
+            flex: 1;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-label {
+            font-size: 0.8em;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+
+        /* Music Player */
+        .music-player {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px 20px;
+            border-radius: 50px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            z-index: 1000;
+        }
+
+        .music-player:hover {
+            transform: scale(1.05);
+        }
+
+        .music-icon {
+            font-size: 1.5em;
+        }
+
+        .music-label {
+            font-size: 0.9em;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        /* Achievements */
+        .achievement {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.5s ease-out;
+            z-index: 10000;
+            max-width: 300px;
+        }
+
+        .achievement-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .achievement-desc {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Upgrades */
+        .upgrades-container {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f5f5f5;
+            border-radius: 15px;
+        }
+
+        .upgrade-item {
+            background: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .upgrade-info {
+            flex: 1;
+        }
+
+        .upgrade-name {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .upgrade-desc {
+            font-size: 0.85em;
+            color: #666;
+        }
+
+        .upgrade-btn {
+            padding: 8px 20px;
+            font-size: 0.9em;
+            min-width: 100px;
+        }
+
+        .upgrade-btn:disabled {
+            background: #ccc;
+        }
+
+        .floating-points {
+            position: fixed;
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+            pointer-events: none;
+            animation: floatUp 1s ease-out forwards;
+            z-index: 9998;
+        }
+
+        @keyframes floatUp {
+            0% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-100px);
+            }
+        }
     </style>
 </head>
 <body>
+    <!-- Music Player -->
+    <div class="music-player" id="musicPlayer">
+        <span class="music-icon" id="musicIcon">🎵</span>
+        <span class="music-label">Lofi Beats</span>
+    </div>
+
+    <audio id="lofiAudio" loop>
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+    </audio>
+
     <div class="container">
         <div class="cat-emoji">🐱</div>
-        <h1>Cat GIF Generator</h1>
-        <p class="subtitle">Click the button for a random cat GIF!</p>
+        <h1>Cat Clicker Game</h1>
+        <p class="subtitle">Click to collect cats and unlock upgrades!</p>
+
+        <!-- Stats -->
+        <div class="stats-container">
+            <div class="stat-box">
+                <div class="stat-label">Cat Points</div>
+                <div class="stat-value" id="points">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Level</div>
+                <div class="stat-value" id="level">1</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Click Power</div>
+                <div class="stat-value" id="clickPower">1</div>
+            </div>
+        </div>
 
         <div class="gif-container">
-            <p class="placeholder" id="placeholder">Click below to generate a cat GIF</p>
+            <p class="placeholder" id="placeholder">Click below to start collecting cats!</p>
             <img id="catGif" alt="Random Cat GIF">
         </div>
 
-        <button id="generateBtn">Generate Cat GIF</button>
-        <p class="loading" id="loading" style="display: none;">Loading adorable cats...</p>
-        <p class="error" id="error" style="display: none;"></p>
+        <button type="button" id="generateBtn">Generate Cat (+<span id="btnPoints">1</span> pts)</button>
+        <p class="loading" id="loading"></p>
+        <p class="error" id="error"></p>
+
+        <!-- Upgrades -->
+        <div class="upgrades-container">
+            <h3 style="margin-bottom: 15px; color: #333;">Upgrades</h3>
+            <div class="upgrade-item">
+                <div class="upgrade-info">
+                    <div class="upgrade-name">Double Click</div>
+                    <div class="upgrade-desc">Each click gives +1 extra point</div>
+                </div>
+                <button type="button" class="upgrade-btn" id="upgrade1" data-cost="10" data-power="1">10 pts</button>
+            </div>
+            <div class="upgrade-item">
+                <div class="upgrade-info">
+                    <div class="upgrade-name">Triple Click</div>
+                    <div class="upgrade-desc">Each click gives +2 extra points</div>
+                </div>
+                <button type="button" class="upgrade-btn" id="upgrade2" data-cost="50" data-power="2">50 pts</button>
+            </div>
+            <div class="upgrade-item">
+                <div class="upgrade-info">
+                    <div class="upgrade-name">Mega Click</div>
+                    <div class="upgrade-desc">Each click gives +5 extra points</div>
+                </div>
+                <button type="button" class="upgrade-btn" id="upgrade3" data-cost="200" data-power="5">200 pts</button>
+            </div>
+            <div class="upgrade-item">
+                <div class="upgrade-info">
+                    <div class="upgrade-name">Ultra Click</div>
+                    <div class="upgrade-desc">Each click gives +10 extra points</div>
+                </div>
+                <button type="button" class="upgrade-btn" id="upgrade4" data-cost="500" data-power="10">500 pts</button>
+            </div>
+        </div>
     </div>
 
     <script>
+        // DOM Elements
         const generateBtn = document.getElementById('generateBtn');
         const catGif = document.getElementById('catGif');
         const placeholder = document.getElementById('placeholder');
         const loading = document.getElementById('loading');
         const error = document.getElementById('error');
         const container = document.querySelector('.container');
+        const musicPlayer = document.getElementById('musicPlayer');
+        const lofiAudio = document.getElementById('lofiAudio');
+        const musicIcon = document.getElementById('musicIcon');
 
-        // Using Giphy API - this is a public demo key, for production use your own
+        // Game State
+        let points = 0;
+        let level = 1;
+        let clickPower = 1;
+        let gifCount = 0;
+        let musicPlaying = false;
+
+        // Using Giphy API
         const GIPHY_API_KEY = 'sXpGFDGZs0Dv1mmNFvYaGUvYwKX0PWIh';
         const GIPHY_API_URL = 'https://api.giphy.com/v1/gifs/random';
 
-        // Counter for tracking every 5th gif
-        let gifCount = 0;
+        // Achievements
+        const achievements = [
+            { points: 10, title: '🎉 Cat Novice', desc: 'Earned 10 cat points!' },
+            { points: 50, title: '🌟 Cat Enthusiast', desc: 'Earned 50 cat points!' },
+            { points: 100, title: '🏆 Cat Master', desc: 'Earned 100 cat points!' },
+            { points: 250, title: '👑 Cat Legend', desc: 'Earned 250 cat points!' },
+            { points: 500, title: '💎 Cat Emperor', desc: 'Earned 500 cat points!' },
+            { points: 1000, title: '🚀 Cat God', desc: 'Earned 1000 cat points!' }
+        ];
+        const unlockedAchievements = new Set();
+
+        // Music Player Toggle
+        musicPlayer.addEventListener('click', () => {
+            if (musicPlaying) {
+                lofiAudio.pause();
+                musicIcon.textContent = '🔇';
+                musicPlaying = false;
+            } else {
+                lofiAudio.play().catch(e => console.log('Audio play failed:', e));
+                musicIcon.textContent = '🎵';
+                musicPlaying = true;
+            }
+        });
+
+        function updateStats() {
+            document.getElementById('points').textContent = points;
+            document.getElementById('level').textContent = level;
+            document.getElementById('clickPower').textContent = clickPower;
+            document.getElementById('btnPoints').textContent = clickPower;
+
+            // Update level based on points
+            const newLevel = Math.floor(points / 20) + 1;
+            if (newLevel > level) {
+                level = newLevel;
+                showAchievement('🎊 Level Up!', `You reached level ${level}!`);
+            }
+
+            // Update upgrade buttons
+            document.querySelectorAll('.upgrade-btn').forEach(btn => {
+                const cost = parseInt(btn.dataset.cost);
+                btn.disabled = points < cost;
+            });
+
+            // Save progress
+            saveProgress();
+        }
+
+        function showFloatingPoints(x, y, amount) {
+            const floating = document.createElement('div');
+            floating.className = 'floating-points';
+            floating.textContent = `+${amount}`;
+            floating.style.left = x + 'px';
+            floating.style.top = y + 'px';
+            document.body.appendChild(floating);
+            setTimeout(() => floating.remove(), 1000);
+        }
+
+        function showAchievement(title, desc) {
+            const achievement = document.createElement('div');
+            achievement.className = 'achievement';
+            achievement.innerHTML = `
+                <div class="achievement-title">${title}</div>
+                <div class="achievement-desc">${desc}</div>
+            `;
+            document.body.appendChild(achievement);
+            setTimeout(() => achievement.remove(), 4000);
+        }
+
+        function checkAchievements() {
+            achievements.forEach(ach => {
+                if (points >= ach.points && !unlockedAchievements.has(ach.points)) {
+                    unlockedAchievements.add(ach.points);
+                    showAchievement(ach.title, ach.desc);
+                }
+            });
+        }
 
         function createExplodingCat(startX, startY) {
             const cat = document.createElement('div');
             cat.textContent = '🐱';
             cat.className = 'exploding-cat';
 
-            // Random direction and rotation
             const angle = Math.random() * Math.PI * 2;
             const distance = 300 + Math.random() * 400;
             const tx = Math.cos(angle) * distance;
@@ -212,79 +516,71 @@
             cat.style.setProperty('--rotation', rotation + 'deg');
 
             document.body.appendChild(cat);
-
-            // Remove after animation
             setTimeout(() => cat.remove(), 2000);
         }
 
         function explodePage() {
-            // Shake the container
             container.classList.add('shaking');
+            showAchievement('💥 MEGA BONUS!', 'Cat explosion! +50 bonus points!');
+            points += 50;
+            updateStats();
 
             setTimeout(() => {
                 container.classList.remove('shaking');
 
-                // Create explosion of cats
                 const catCount = 30;
                 const rect = container.getBoundingClientRect();
                 const centerX = rect.left + rect.width / 2;
                 const centerY = rect.top + rect.height / 2;
 
                 for (let i = 0; i < catCount; i++) {
-                    setTimeout(() => {
-                        createExplodingCat(centerX, centerY);
-                    }, i * 30);
+                    setTimeout(() => createExplodingCat(centerX, centerY), i * 30);
                 }
 
-                // Hide container during explosion
-                setTimeout(() => {
-                    container.style.opacity = '0';
-                }, 100);
+                setTimeout(() => container.style.opacity = '0', 100);
 
-                // Rebuild container
                 setTimeout(() => {
                     container.style.opacity = '1';
                     container.classList.add('rebuilding');
-                    setTimeout(() => {
-                        container.classList.remove('rebuilding');
-                    }, 1000);
+                    setTimeout(() => container.classList.remove('rebuilding'), 1000);
                 }, 1500);
-
             }, 500);
         }
 
         async function fetchCatGif() {
             try {
-                // Hide error and show loading
-                error.style.display = 'none';
+                loading.textContent = 'Loading adorable cats...';
                 loading.style.display = 'block';
+                error.style.display = 'none';
                 generateBtn.disabled = true;
 
-                // Fetch random cat gif from Giphy
                 const response = await fetch(
                     `${GIPHY_API_URL}?api_key=${GIPHY_API_KEY}&tag=cat&rating=g`
                 );
 
-                if (!response.ok) {
-                    throw new Error('Failed to fetch cat GIF');
-                }
+                if (!response.ok) throw new Error('Failed to fetch cat GIF');
 
                 const data = await response.json();
                 const gifUrl = data.data.images.original.url;
 
-                // Hide placeholder and show gif
                 placeholder.style.display = 'none';
                 catGif.src = gifUrl;
                 catGif.classList.add('show');
 
-                // Increment counter
+                // Add points
+                points += clickPower;
                 gifCount++;
 
-                // Check if it's the 5th gif
+                // Show floating points
+                const rect = generateBtn.getBoundingClientRect();
+                showFloatingPoints(rect.left + rect.width / 2, rect.top, clickPower);
+
+                updateStats();
+                checkAchievements();
+
+                // Check for explosion
                 if (gifCount % 5 === 0) {
-                    setTimeout(() => {
-                        explodePage();
-                    }, 500);
+                    setTimeout(() => explodePage(), 500);
                 }
 
             } catch (err) {
@@ -297,11 +593,51 @@
             }
         }
 
+        // Upgrades
+        document.querySelectorAll('.upgrade-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const cost = parseInt(btn.dataset.cost);
+                const power = parseInt(btn.dataset.power);
+
+                if (points >= cost) {
+                    points -= cost;
+                    clickPower += power;
+                    btn.disabled = true;
+                    btn.textContent = 'Purchased!';
+                    updateStats();
+                    showAchievement('⬆️ Upgrade Unlocked!', `Click power increased by ${power}!`);
+                }
+            });
+        });
+
+        // Save and Load Progress
+        function saveProgress() {
+            localStorage.setItem('catClicker', JSON.stringify({
+                points, level, clickPower, gifCount,
+                achievements: Array.from(unlockedAchievements)
+            }));
+        }
+
+        function loadProgress() {
+            const saved = localStorage.getItem('catClicker');
+            if (saved) {
+                const data = JSON.parse(saved);
+                points = data.points || 0;
+                level = data.level || 1;
+                clickPower = data.clickPower || 1;
+                gifCount = data.gifCount || 0;
+                if (data.achievements) {
+                    data.achievements.forEach(a => unlockedAchievements.add(a));
+                }
+                updateStats();
+            }
+        }
+
         // Event listener for button
         generateBtn.addEventListener('click', fetchCatGif);
 
-        // Optional: Load a cat GIF on page load
-        // fetchCatGif();
+        // Load saved progress on start
+        loadProgress();
     </script>
 </body>
 </html>
