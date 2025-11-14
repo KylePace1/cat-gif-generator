@@ -41,4 +41,4 @@ Visit the live site: [Cat Clicker Game](https://kylepace1.github.io/cat-gif-gene
 - CSS3 (Animations & Gradients)
 - Vanilla JavaScript
 - Giphy API
-- LocalStorage for progress saving
+- LocalStorage for saving
